@@ -9,3 +9,7 @@ https://www.academia.edu/996651/Intraday_trading_rules_based_on_Self_Organizing_
 
 Sentdex "Machine Learning and Pattern Recognition for Algorithmic Forex and Stock Trading"
 https://www.youtube.com/watch?v=v_L9jR8P-54
+
+
+15 years or so of forex tick data here:
+http://ratedata.gaincapital.com/
