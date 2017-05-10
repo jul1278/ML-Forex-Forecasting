@@ -8,7 +8,6 @@ import csv
 import pandas as pd
 import numpy as np
 import datetime
-import somoclu
 import math
 import random
 
@@ -25,7 +24,7 @@ def get_files_in_directory(directory, filter):
 def main():
 
     if (len(sys.argv) < 2):
-        print 'ohlc files path / training set csv path missing'
+        print('ohlc files path / training set csv path missing')
         print('Quitting...')
         quit()
 
@@ -65,10 +64,8 @@ def main():
 
         norm_flat_scaled = np.divide(norm_flat - norm_min * np.ones(len(norm_flat)), norm_max - norm_min)
         norm_flat_scaled = [x - norm_flat_scaled.mean() for x in norm_flat_scaled]
-        
-        # print norm_flat.shape
 
-        size_len = norm_flat_scaled.size
+        size_len = len(norm_flat_scaled)
         num_examples = int(math.floor(size_len / example_len))
 
         for n in range(num_examples):
@@ -79,7 +76,7 @@ def main():
                 break    
 
             #extract from i_offset tp i_offset_end and put into new aray
-            sample = norm_flat_scaled[i_offset:i_offset_end].transpose()
+            sample = norm_flat_scaled[i_offset:i_offset_end]
 
             current_date_index = int(math.floor(i_offset / 4) + 1)
             next_close_price_index = i_offset_end + 4
@@ -102,7 +99,7 @@ def main():
             training_set.append(write)
 
         # write the training_set in random order to a csv
-        with open(output_file, 'wb') as csvfile:
+        with open(output_file, 'w') as csvfile:
             writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
             # TODO write headers

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
-from matplotlib.finance import candlestick_ohlc
+from matplotlib.mpl_finance import candlestick_ohlc
 
 import numpy as np
 import pandas as pd
@@ -21,7 +21,7 @@ def bytespdate2num(fmt, encoding='utf-8'):
 def plot_ohlc_range(ohlc_path, range_start, range_end):
 
     if os.path.exists(ohlc_path) == False:
-        print ohlc_path + ' file doesnt exist'
+        print(ohlc_path + ' file doesnt exist')
         
         quit()
 
