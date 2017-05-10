@@ -38,7 +38,6 @@ def main():
     print(ohlc_path)
 
     ohlc_files = get_files_in_directory(ohlc_path, '.csv')
-
     output_file = sys.argv[2]
 
     training_set = []

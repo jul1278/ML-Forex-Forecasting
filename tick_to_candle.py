@@ -122,10 +122,11 @@ def main():
         print(csv_file)
         df = pd.read_csv(csv_file, nrows=2)
         start_time_str = df.iloc[1]['RateDateTime']
+        currency_pair_str = df['CurrencyPair'].iloc[1]
         print(start_time_str)
         start_time = parse_time(start_time_str)
 
-        file_startdates.append((csv_file, start_time_str))
+        file_startdates.append((csv_file, start_time, currency_pair_str))
 
     sorted_files = sorted(file_startdates, key = lambda tup: tup[1])
 
@@ -136,18 +137,23 @@ def main():
         # get relative path
         print(file_startdate[0])
         
-        diff = [i for i in xrange(min(len(file_startdate[0]),len(csv_path))) if file_startdate[0][i] != csv_path[i]]
+        #diff = [i for i in xrange(min(len(file_startdate[0]),len(csv_path))) if file_startdate[0][i] != csv_path[i]]
 
-        if diff == []:
-            diff = [min(len(file_startdate[0]),len(csv_path))]
+        #if diff == []:
+        #    diff = [min(len(file_startdate[0]),len(csv_path))]
         
-        rel = file_startdate[0][diff[0]:]
-        rel = rel.replace('.csv', '')
+        #rel = file_startdate[0][diff[0]:]
+        #rel = rel.replace('.csv', '')
 
         # remove the top folder which is 'extract' or something
-        rel_split = rel.split(os.sep)[1:]
+        #rel_split = rel.split(os.sep)[1:]
 
-        output_file_name = '_'.join(rel_split) + ' ohlc.csv'
+        # folder should be ohlc/USD_JPY/USD_JPY_YY_MM_DD_HH_mm_ss.csv ??
+
+        #output_file_name = '_'.join(rel_split) + ' ohlc.csv'
+        
+        output_file_name = file_startdate[2].replace('/', '_') + file_startdate[1].strftime('_%Y_%m_%d_%H_%M_%S') + '.csv'
+
         print('name: ' + output_file_name)
 
         ticks_to_candle(file_startdate[0], output_path, output_file_name)
