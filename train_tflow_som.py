@@ -35,10 +35,10 @@ if os.path.exists(training_set_path) == False:
     quit()
 
 print(time.strftime("%H:%M:%S") + ' loading training set...')
-training_set = pd.read_csv(training_set_path)
-training_set_ex = training_set[training_set.columns[1:(example_len+1)]]
 
-print(time.strftime("%H:%M:%S") + ' training set shape: ' + str(training_set.shape))
+training_set_df = pd.read_csv(training_set_path)
+
+print(time.strftime("%H:%M:%S") + ' training set shape: ' + str(training_set_df.shape))
 
 # find all the ohlc files as well
 ohlc_files = ohlc_file_helper.get_files_in_directory(ohlc_files_path, '.csv')
@@ -46,14 +46,21 @@ ohlc_date_map = list(ohlc_file_helper.build_ohlc_date_map(ohlc_files))
 
 print(time.strftime("%H:%M:%S") + ' training SOM')
 
-sess = tf.InteractiveSession()
-num_training = 400
+training_set = training_set_df.iloc[:100, 1:(example_len + 1)].values
 
-s = som.SOM((example_len,), 30, num_training, sess)
+print(training_set)
 
-for index, row in training_set_ex.iterrows():
-    row_vals = row.values
-    s.train(row_vals)
+num_training = 20#400
+sm = som.SOM(20, 30, example_len, num_training)
+sm.train(training_set)
 
-plt.imshow(np.reshape(s.get_weights(), [30, 30, 3]))
+# plt.imshow(np.reshape(s.get_weights(), [30, 30, 3]))
+# plt.show()
+
+#Get output grid
+image_grid = sm.get_centroids()
+ 
+#Plot
+plt.imshow(image_grid)
+plt.title('SOM')
 plt.show()
