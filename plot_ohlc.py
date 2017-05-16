@@ -13,8 +13,8 @@ import os
 def bytespdate2num(fmt, encoding='utf-8'):
     strconverter = mdates.strpdate2num(fmt)
     def bytesconverter(b):
-        s = b.decode(encoding)
-        return strconverter(s)
+        #s = b.decode(encoding)
+        return strconverter(b)
     return bytesconverter
 
 # plot_ohlc_range

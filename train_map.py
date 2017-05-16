@@ -17,8 +17,8 @@ import ohlc_file_helper
 
 from collections import defaultdict
 
-example_len = 30
-example_step = 15
+example_len = 32
+example_step = 16
 
 # main
 def main():
@@ -95,10 +95,10 @@ def main():
 
             # 
             fst_open_datetime = datetime.datetime.strptime(fst_open_time, '%Y-%m-%d %H:%M:%S')
-            fst_close_datetime = fst_open_datetime + datetime.timedelta(minutes=example_len) 
+            fst_close_datetime = fst_open_datetime + datetime.timedelta(minutes=example_len/4) 
 
             snd_open_datetime = datetime.datetime.strptime(snd_open_time, '%Y-%m-%d %H:%M:%S')
-            snd_close_datetime = snd_open_datetime + datetime.timedelta(minutes=example_len) 
+            snd_close_datetime = snd_open_datetime + datetime.timedelta(minutes=example_len/4) 
 
             plot_ohlc.plot_ohlc_range(fst_ohlc_path, fst_open_datetime, fst_close_datetime)
             plot_ohlc.plot_ohlc_range(snd_ohlc_path, snd_open_datetime, snd_close_datetime)

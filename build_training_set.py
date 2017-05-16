@@ -20,7 +20,7 @@ def get_files_in_directory(directory, filter):
         for file in files:
             if filter in file:
                 yield os.path.join(dir_name, file)
-
+# main
 def main():
 
     if (len(sys.argv) < 2):
