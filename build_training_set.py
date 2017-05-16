@@ -11,8 +11,8 @@ import datetime
 import math
 import random
 
-example_len = 30
-example_step = 15
+example_len = 4*8
+example_step = 4*2
 
 # get_files_in_directory
 def get_files_in_directory(directory, filter):
@@ -59,30 +59,29 @@ def main():
         # flatten and drop the first four because they're NAN
         norm_flat = norm.values.flatten()[4:]
 
-        norm_max = norm_flat.max()
-        norm_min = norm_flat.min()
-
-        norm_flat_scaled = np.divide(norm_flat - norm_min * np.ones(len(norm_flat)), norm_max - norm_min)
-        norm_flat_scaled = [x - norm_flat_scaled.mean() for x in norm_flat_scaled]
-
-        size_len = len(norm_flat_scaled)
+        size_len = len(norm_flat)
         num_examples = int(math.floor(size_len / example_len))
 
         for n in range(num_examples):
-            i_offset = n * example_len; 
-            i_offset_end = i_offset + example_len;
+            i_offset = n * example_step
+            i_offset_end = i_offset + example_len
 
             if (i_offset_end + 4) >= size_len:
                 break    
 
             #extract from i_offset tp i_offset_end and put into new aray
-            sample = norm_flat_scaled[i_offset:i_offset_end]
+            sample = norm_flat[i_offset:i_offset_end]
+
+            norm_min = sample.min()
+            norm_max = sample.max()
+
+            sample_norm = np.divide(sample - norm_min * np.ones(len(sample)), norm_max - norm_min)
 
             current_date_index = int(math.floor(i_offset / 4) + 1)
             next_close_price_index = i_offset_end + 4
 
             current_date = dates.loc[current_date_index]
-            sample_strings = ['{:.10f}'.format(x) for x in sample]
+            sample_strings = ['{:.10f}'.format(x) for x in sample_norm]
             
             # we want the normalised price but not scaled
             next_price = norm_flat[next_close_price_index]

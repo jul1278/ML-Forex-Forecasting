@@ -11,14 +11,14 @@ import math
 import time
 import random
 import train_map
+import ohlc_file_helper
 import plot_ohlc
 
 from sklearn import svm
 
 from collections import defaultdict
 
-example_len = 60
-training_len = 18000
+example_len = 32
 
 # main
 def main():
@@ -64,30 +64,31 @@ def main():
     print str(len(test_set.index))
     print str(len(training_set.index))
 
-    ohlc_files = train_map.get_files_in_directory(ohlc_files_path, '.csv')
-    ohlc_date_map = list(train_map.build_ohlc_date_map(ohlc_files))
+    ohlc_files = ohlc_file_helper.get_files_in_directory(ohlc_files_path, '.csv')
+    ohlc_date_map = list(ohlc_file_helper.build_ohlc_date_map(ohlc_files))
 
-    for index, row in test_set.iterrows():
+    for index, item in test_set_result.iteritems():
 
-        pred = int(clf.predict([row])[0])
-        result = int(row['next_price'])
+        pred = clf.predict([test_set.loc[index].values])
+        result = item
         print 'prediction: ', pred #row['next_price']
         print 'actual: ', result #index
 
         curr_date = training_set_extended['time_stamp'].iloc[index]
-        curr_ohlc_path = train_map.find_ohlc_path_from_date(ohlc_date_map, curr_date)
+        curr_ohlc_path = ohlc_file_helper.find_ohlc_path_from_date(ohlc_date_map, curr_date)
 
         print curr_date
 
         curr_datetime = datetime.datetime.strptime(curr_date, '%Y-%m-%d %H:%M:%S')
         close_datetime = curr_datetime + datetime.timedelta(minutes=example_len + 1) 
 
-        plot_ohlc.plot_ohlc_range(curr_ohlc_path, curr_datetime, close_datetime)
+        #plot_ohlc.plot_ohlc_range(curr_ohlc_path, curr_datetime, close_datetime)
 
         if (pred == result):
             correct += 1
         else:
            incorrect += 1 
+
 
     print 'correct: ' + str(correct)
     print 'incorrect: ' + str(incorrect)

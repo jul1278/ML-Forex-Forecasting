@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
-from matplotlib.mpl_finance import candlestick_ohlc
+from matplotlib.finance import candlestick_ohlc
 
 import numpy as np
 import pandas as pd

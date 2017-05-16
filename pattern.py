@@ -15,7 +15,7 @@ import plot_ohlc
 import ohlc_file_helper
 import matplotlib.pyplot as plt
 
-example_len = 30
+example_len = 4*8
 
 # build_pattern_set
 def build_pattern_set(tick_path, pattern_output_path):
@@ -37,7 +37,8 @@ def build_pattern_set(tick_path, pattern_output_path):
             else:
                 break
 
-            
+    
+    return patterns
 
 # main
 def main():
@@ -47,15 +48,29 @@ def main():
         print('Quitting...')
         quit()
 
-    ticks_path = sys.argv[1]
-    output_path = sys.argv[2]
+    training_set = sys.argv[1]
+    ohlc_path = sys.argv[2]
 
     if os.path.exists(ticks_path) == False:
         print ticks_path + ' does not exist.'
         quit()
 
+    index = 0
+    current_index = 0
 
-    build_pattern_set(ticks_path, output_path)
+    
+
+    for pattern in patterns:
+        for curr_pattern in patterns: 
+            
+            diff = np.subtract(curr_pattern, pattern)
+            pct_diff = np.absolute(np.divide(diff, pattern))
+
+            average = pct_diff.average()
+
+            current_index += 1
+        
+        index += 1
 
 if __name__ == "__main__":
     # stuff only to run when not called via 'import' here
