@@ -29,8 +29,53 @@ def build_tick_date_map(tick_files):
 
         # get the first date and the last date and make a tuple
         yield (start_date, last_date, tick_file)
-        
+    
 
+# find_index_closest_date
+def find_index_closest_date(find_date_time, tick_file_path):
+    
+    # TODO: check file exists
+    # TODO: check given date is within the bounds of the file
+
+    file_df = pd.read_csv(tick_file_path)
+    
+    index = 0
+    index = int(len(file_df.index)/2)
+
+    index_min = 0
+    index_max = len(file_df.index) - 1
+
+    # do a binary search to find
+    while (index < len(file_df.index) and index > 0):
+        
+        current_date = plot_ticks.parse_time(file_df['RateDateTime'].iloc[index])
+        prev_date_time = plot_ticks.parse_time(file_df['RateDateTime'].iloc[index-1])
+        next_date_time = plot_ticks.parse_time(file_df['RateDateTime'].iloc[index+1])
+
+        if (find_date_time <= current_date and find_date_time >= prev_date_time):
+            if (find_date_time - prev_date_time) > (current_date - find_date_time):
+                return (index - 1)    
+            else:
+                return index
+
+        if (find_date_time >= current_date and find_date_time <= next_date_time):
+            if (find_date_time - current_date) > (next_date_time - find_date_time):
+                return index
+            else:
+                return (index + 1)
+
+        if (current_date > find_date_time):
+            # halve index
+            old_index = index
+            index = int((index - index_min) / 2)
+            index_max = old_index
+            
+        elif (current_date < find_date_time):
+            #add half to index
+            old_index = index
+            index = int(math.ceil( index + ((index - index_min) / 2))) 
+            index_min = old_index
+            
 # find_ohlc_path_from_date
 def find_tick_path_from_date(tick_map, date):
     for start_date, end_date, file_path in tick_map:
