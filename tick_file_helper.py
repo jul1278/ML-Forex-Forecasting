@@ -35,10 +35,16 @@ def build_tick_date_map(tick_files):
 def find_index_closest_date(find_date_time, tick_file_path):
     
     # TODO: check file exists
-    # TODO: check given date is within the bounds of the file
-
     file_df = pd.read_csv(tick_file_path)
-    
+
+    start_date = plot_ticks.parse_time(file_df['RateDateTime'].iloc[0])
+    end_date = plot_ticks.parse_time(file_df['RateDateTime'].iloc[-1])
+
+    # check given date is within the bounds of the file
+    if (find_date_time < start_date or find_date_time > end_date):
+        print("find date outside file date bounds.")
+        return
+
     index = 0
     index = int(len(file_df.index)/2)
 
@@ -73,7 +79,7 @@ def find_index_closest_date(find_date_time, tick_file_path):
         elif (current_date < find_date_time):
             #add half to index
             old_index = index
-            index = int(math.ceil( index + ((index - index_min) / 2))) 
+            index = int(math.ceil( index + ((index_max - index) / 2))) 
             index_min = old_index
             
 # find_ohlc_path_from_date

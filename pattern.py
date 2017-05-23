@@ -95,8 +95,13 @@ def main():
                 print(time_str + ', ' + curr_time_str)
 
                 curr_tick_path = tick_file_helper.find_tick_path_from_date(tick_date_map, curr_time_str)
-
-                plot_ticks.plot_tick_range(tick_path, curr_time_dt, curr_time_dt_close)
+                
+                plt.subplot(2, 1, 1)
+                plt.title(str(tick_path))
+                plot_ticks.plot_tick_range(tick_path, time_dt, time_dt_close)
+                
+                plt.subplot(2, 1, 2)
+                plt.title(str(curr_tick_path))
                 plot_ticks.plot_tick_range(curr_tick_path, curr_time_dt, curr_time_dt_close)
 
                 plt.show()
