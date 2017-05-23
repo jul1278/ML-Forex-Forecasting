@@ -67,7 +67,7 @@ def find_index_closest_date(find_date_time, tick_file_path):
         if (current_date > find_date_time):
             # halve index
             old_index = index
-            index = int((index - index_min) / 2)
+            index = index_min + int((index - index_min) / 2)
             index_max = old_index
             
         elif (current_date < find_date_time):
