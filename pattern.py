@@ -55,6 +55,7 @@ def main():
         time_str = str(training_set['time_stamp'].loc[index])
         time_dt = datetime.datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
         time_dt_close = time_dt + datetime.timedelta(minutes=example_len/4) 
+        time_dt_end = time_dt_close + datetime.timedelta(minutes=1) 
 
         tick_path = tick_file_helper.find_tick_path_from_date(tick_date_map, time_str)
 
@@ -68,12 +69,12 @@ def main():
             sqr_diff = np.power(diff, 2)
             sqr = math.sqrt(np.sum(sqr_diff))
 
-            # assume something fucked up
-            if sqr == 0.0:
-                current_index += 1
-                continue
+            ## assume something fucked up
+            #if sqr == 0.0:
+            #    current_index += 1
+            #    continue
 
-            if (sqr < 0.5):
+            if (sqr < 0.45):
                 smallest_dist = sqr
                 smallest_index = (current_index, index)
                 
@@ -85,7 +86,8 @@ def main():
                 
                 curr_time_str = str(training_set['time_stamp'].loc[current_index])
                 curr_time_dt = datetime.datetime.strptime(curr_time_str, '%Y-%m-%d %H:%M:%S')
-                curr_time_dt_close = curr_time_dt + datetime.timedelta(minutes=example_len/4) 
+                curr_time_dt_close = curr_time_dt + datetime.timedelta(minutes=example_len/4)
+                curr_time_dt_end = curr_time_dt_close + datetime.timedelta(minutes=1)
 
                 if (pattern[-1] != curr_pattern[-1]):
                     diff_result_w_matching_pattern += 1
@@ -98,11 +100,13 @@ def main():
                 
                 plt.subplot(2, 1, 1)
                 plt.title(str(tick_path))
-                plot_ticks.plot_tick_range(tick_path, time_dt, time_dt_close)
+                plot_ticks.plot_tick_range(tick_path, time_dt, time_dt_end)
+                plt.axvline(time_dt_close, color='r')
                 
                 plt.subplot(2, 1, 2)
                 plt.title(str(curr_tick_path))
-                plot_ticks.plot_tick_range(curr_tick_path, curr_time_dt, curr_time_dt_close)
+                plot_ticks.plot_tick_range(curr_tick_path, curr_time_dt, curr_time_dt_end)
+                plt.axvline(curr_time_dt_close, color='r')
 
                 plt.show()
 
