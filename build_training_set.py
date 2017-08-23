@@ -11,7 +11,7 @@ import datetime
 import math
 import random
 
-example_len = 4*8
+example_len = 4*4
 example_step = 4*2
 
 # get_files_in_directory
@@ -94,12 +94,12 @@ def main():
             elif next_price <= -0.0001:
                 next_price_class = 2
 
-            write = [current_date.to_string(index=False)] + sample_strings + [next_price_class]    
+            write = [current_date.to_string(index=False)] + sample_strings + [str(next_price_class)]    
             training_set.append(write)
 
         # write the training_set in random order to a csv
         with open(output_file, 'w') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
 
             # TODO write headers
             headers = ['time_stamp'] + [str(x) for x in range(1, example_len + 1)] + ['next_price']
