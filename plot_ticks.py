@@ -69,3 +69,37 @@ def plot_tick_range(tick_path, range_start, range_end):
     # plt.legend()
     # plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
     #plt.show()
+
+    # plot_ohlc_range
+def plot_tick_range_normalised(tick_path, range_start, range_end):
+
+    if os.path.exists(tick_path) == False:
+        print(tick_path + ' file doesnt exist')
+        
+        quit()
+
+    date_cols = ['RateDateTime']
+
+    df = pd.read_csv(tick_path, usecols=['RateDateTime','RateBid','RateAsk'])
+
+    start_index = tfh.find_index_closest_date(range_start, tick_path)
+    end_index = tfh.find_index_closest_date(range_end, tick_path)
+
+    # dont proceed if we didnt find indices
+    if (start_index is None or end_index is None):
+        print('start_index or end_index was None')
+        quit()
+
+    ticks_s = df.iloc[start_index:end_index]
+
+    ticks = ((ticks_s['RateAsk'] + ticks_s['RateBid']) / 2.0)
+
+    ticks_norm = (ticks - ticks.min()) / (ticks.max() - ticks.min())
+
+    dates_dt = [dt.datetime.strptime(str.split(x, '.')[0], '%Y-%m-%d %H:%M:%S') for x in ticks_s['RateDateTime'].values]
+
+    dates = mdates.date2num(dates_dt)
+
+    plt.plot_date(dates, ticks_norm, 'b-')
+
+

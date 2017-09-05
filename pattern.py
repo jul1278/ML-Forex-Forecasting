@@ -15,7 +15,7 @@ import plot_ticks
 import tick_file_helper
 import matplotlib.pyplot as plt
 
-example_len = 4*8
+example_len = 4*4
 
 # main
 def main():
@@ -74,7 +74,7 @@ def main():
             #    current_index += 1
             #    continue
 
-            if (sqr < 0.45):
+            if (sqr < 0.4):
                 smallest_dist = sqr
                 smallest_index = (current_index, index)
                 
@@ -98,6 +98,8 @@ def main():
 
                 curr_tick_path = tick_file_helper.find_tick_path_from_date(tick_date_map, curr_time_str)
                 
+                # TODO: if there is a large difference between the number of ticks in each pattern then dont bother comparing
+
                 plt.subplot(2, 1, 1)
                 plt.title(str(tick_path))
                 plot_ticks.plot_tick_range(tick_path, time_dt, time_dt_end)

@@ -2,6 +2,7 @@ import sys
 import os
 import numpy as np
 import pandas as pd
+import time
 import datetime as datetime
 import matplotlib.pyplot as plt
 import matplotlib.finance as fin
@@ -132,6 +133,9 @@ def main():
 
     ohlc_files = []
 
+    counter = 0
+    avg_duration = 0.0
+
     for file_startdate in sorted_files:
         
         # get relative path
@@ -155,12 +159,23 @@ def main():
         output_file_name = file_startdate[2].replace('/', '_') + file_startdate[1].strftime('_%Y_%m_%d_%H_%M_%S') + '.csv'
 
         print('name: ' + output_file_name)
-
+        
+        start = time.time()
         ticks_to_candle(file_startdate[0], output_path, output_file_name)
+        end = time.time()
+
+        duration = end - start
+
+        avg_duration = (duration + counter * avg_duration) / (counter + 1)
+        counter = counter + 1
+
+        print("elapsed: " + str(duration))
+
+        remaining = avg_duration * (len(sorted_files) - counter)
+
+        print("remaining time: " + str(remaining / 60.0) + " mins")
 
         ohlc_files.extend(output_file_name)
-
-main()
 
 if __name__ == "__main__":
    # stuff only to run when not called via 'import' here
