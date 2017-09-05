@@ -286,15 +286,15 @@ void SavePricePairs(std::string& file1, std::string file2) {
 	if (outStream.is_open()) {
 		for (auto pair : pairs) {
 
-			outStream << pair.dateTimePrice.year << "-";
-			outStream << pair.dateTimePrice.month << "-";
-			outStream << pair.dateTimePrice.day << " ";
-			outStream << pair.dateTimePrice.hour << ":";
-			outStream << pair.dateTimePrice.minute << ":";
-			outStream << pair.dateTimePrice.second << ".";
-			outStream << pair.dateTimePrice.millisec << ", ";
-			outStream << pair.dateTimePrice.quote << ", ";
-			outStream << pair.pairQuote << "\n"; 
+			outStream << std::to_string(pair.dateTimePrice.year) << "-";
+			outStream << std::to_string(pair.dateTimePrice.month) << "-";
+			outStream << std::to_string(pair.dateTimePrice.day) << " ";
+			outStream << std::to_string(pair.dateTimePrice.hour) << ":";
+			outStream << std::to_string(pair.dateTimePrice.minute) << ":";
+			outStream << std::to_string(pair.dateTimePrice.second) << ".";
+			outStream << std::to_string(pair.dateTimePrice.millisec) << ", ";
+			outStream << std::to_string(pair.dateTimePrice.quote) << ", ";
+			outStream << std::to_string(pair.pairQuote) << "\n"; 
 		}
 	}
 
