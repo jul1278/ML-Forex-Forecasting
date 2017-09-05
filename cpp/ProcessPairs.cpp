@@ -1,19 +1,25 @@
 // ProcessPairs.cpp
 
-
 #include <iterator>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <chrono>
 #include <ctime>
 #include <stdint.h>
+#include <stdlib.h>
 #include <algorithm>
 
+unsigned int numHeaders = 6;
+const unsigned int bufferSize = 2 * 2048;
 
+//----------------------------------------------------------------------------------------------------------------
+// Name: DateTimePrice
+//----------------------------------------------------------------------------------------------------------------
 struct DateTimePrice {
 	uint16_t year;
 	
@@ -32,8 +38,8 @@ struct DateTimePrice {
 	// Desc:
 	//----------------------------------------------------------------------------------------------------------------
 	bool operator>(const DateTimePrice& other) {
-		uint64_t a = this->year * this->month * this->day * this->hour * this->minute * this->second * this->millisec; 
-		uint64_t b = other.year * other.month * other.day * other.hour * other.minute * other.second * other.millisec; 
+		uint64_t a = MsProduct(*this);
+		uint64_t b = MsProduct(other); 
 
 		return (a > b); 
 	}
@@ -43,8 +49,8 @@ struct DateTimePrice {
 	// Desc:
 	//----------------------------------------------------------------------------------------------------------------
 	bool operator<(const DateTimePrice& other) {
-		uint64_t a = this->year * this->month * this->day * this->hour * this->minute * this->second * this->millisec; 
-		uint64_t b = other.year * other.month * other.day * other.hour * other.minute * other.second * other.millisec; 
+		uint64_t a = MsProduct(*this);
+		uint64_t b = MsProduct(other); 
 
 		return (a < b); 
 	}
@@ -56,13 +62,33 @@ struct DateTimePrice {
 	bool operator==(const DateTimePrice& other) {
 		return memcmp(this, &other, sizeof(DateTimePrice)) == 0; 
 	}
+
+private:
+
+	//----------------------------------------------------------------------------------------------------------------
+	// Name: operator>
+	// Desc:
+	//----------------------------------------------------------------------------------------------------------------
+	inline static uint64_t MsProduct(const DateTimePrice& dateTimePrice)
+	{
+		uint64_t a = dateTimePrice.millisec;
+		if (dateTimePrice.second > 0) a *= dateTimePrice.second; 
+		if (dateTimePrice.minute > 0) a *= dateTimePrice.minute; 
+		if (dateTimePrice.hour > 0) a *= dateTimePrice.hour;
+		if (dateTimePrice.day > 0) a *= dateTimePrice.day;
+		if (dateTimePrice.month > 0) a *= dateTimePrice.month; 
+		if (dateTimePrice.year > 0) a *= dateTimePrice.year; 
+
+		return a; 
+	}
+
 };
 
 //-------------------------------------------------------------------------------------------------------------------
 // Name: DateTimePricePair
 // Desc:
 //-------------------------------------------------------------------------------------------------------------------
-struct DateTimePricePair {
+struct DateTimePricePair {	
 	DateTimePrice dateTimePrice;
 	uint32_t pairQuote;
 
@@ -78,9 +104,6 @@ struct DateTimePricePair {
 		memcpy(&this->dateTimePrice, &dateTimePrice, sizeof(DateTimePrice)); 
 	}
 };
-
-unsigned int numHeaders = 6;
-const unsigned int bufferSize = 2 * 2048;
 
 //----------------------------------------------------------------------------------------------------------
 // Name: StreamReadBlock
@@ -137,7 +160,7 @@ std::vector<DateTimePrice> StreamReadBlock(std::string& filename) {
 					unsigned int millisec;
 
 					// datetime
-#ifdef __WIN32
+#ifdef _MSC_VER
 					sscanf_s(&buffer[lastCommaIndex], "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec); 
 #else
 					sscanf(&buffer[lastCommaIndex], "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &millisec); 
@@ -254,28 +277,28 @@ void SavePricePairs(std::string& file1, std::string file2) {
 			f1Index++; 
 		}
 
-		std::ofstream outStream("pairs.csv");
-
-		if (outStream.is_open()) {
-
-			for (auto pair : pairs) {
-				
-				outStream << pair.dateTimePrice.year << "-" 
-						<< pair.dateTimePrice.month << "-"
-						<< pair.dateTimePrice.day << " "
-						<< pair.dateTimePrice.hour << ":"
-						<< pair.dateTimePrice.minute << ":"
-						<< pair.dateTimePrice.second << "."
-						<< pair.dateTimePrice.millisec << ", "
-						<< pair.dateTimePrice.quote << ", "
-						<< pair.pairQuote << "/n"; 
-
-			}
-		
-		}
-
-		outStream.close(); 
 	}
+		
+	// write to file
+	std::ofstream outStream("pairs.csv");
+	outStream << "date_time, quote1, quote2\n"; 
+
+	if (outStream.is_open()) {
+		for (auto pair : pairs) {
+
+			outStream << pair.dateTimePrice.year << "-";
+			outStream << pair.dateTimePrice.month << "-";
+			outStream << pair.dateTimePrice.day << " ";
+			outStream << pair.dateTimePrice.hour << ":";
+			outStream << pair.dateTimePrice.minute << ":";
+			outStream << pair.dateTimePrice.second << ".";
+			outStream << pair.dateTimePrice.millisec << ", ";
+			outStream << pair.dateTimePrice.quote << ", ";
+			outStream << pair.pairQuote << "\n"; 
+		}
+	}
+
+	outStream.close(); 
 }
 
 //----------------------------------------------------------------------------------------------------------------
