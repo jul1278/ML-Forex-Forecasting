@@ -2,6 +2,7 @@
 
 #include <iterator>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -254,44 +255,41 @@ void SavePricePairs(std::string& file1, std::string file2) {
 		}
 	}
 
+	uint32_t quote1Last = 0;
+	uint32_t quote2Last = 0; 
+
 	while(f1Index < file1Prices.size() && f2Index < file2Prices.size()) {
+
+		DateTimePricePair pair; 
 
 		// put file1Price[] and file2Price[] into output array
 		if (file1Prices[f1Index] > file2Prices[f2Index]) {
-			DateTimePricePair pair(file1Prices[f1Index]);
-			pair.pairQuote = file2Prices[f2Index].quote; 
-			
-			pairs.push_back(pair); 
 
+			// update f2 price
 			f2Index++;
 		} else {
 
-			DateTimePricePair pair(file2Prices[f2Index]);
-			
-			// swap quotes around
-			pair.dateTimePrice.quote = file1Prices[f1Index].quote; 
-			pair.pairQuote = file2Prices[f2Index].quote; 
-
-			pairs.push_back(pair); 
-
+			// update f1 price
 			f1Index++; 
 		}
-
-	}
 		
+		pairs.push_back(pair);
+	}
+
 	// write to file
 	std::ofstream outStream("pairs.csv");
-	outStream << "date_time, quote1, quote2\n"; 
+	outStream << "date_time, quote_1, quote_2\n"; 
 
 	if (outStream.is_open()) {
+
 		for (auto pair : pairs) {
 
-			outStream << std::to_string(pair.dateTimePrice.year) << "-";
-			outStream << std::to_string(pair.dateTimePrice.month) << "-";
-			outStream << std::to_string(pair.dateTimePrice.day) << " ";
-			outStream << std::to_string(pair.dateTimePrice.hour) << ":";
-			outStream << std::to_string(pair.dateTimePrice.minute) << ":";
-			outStream << std::to_string(pair.dateTimePrice.second) << ".";
+			outStream << std::setfill('0') << std::setw(4) << std::to_string(pair.dateTimePrice.year) << "-";
+			outStream << std::setw(2) << std::to_string(pair.dateTimePrice.month) << "-";
+			outStream << std::setw(2) << std::to_string(pair.dateTimePrice.day) << " ";
+			outStream << std::setw(2) << std::to_string(pair.dateTimePrice.hour) << ":";
+			outStream << std::setw(2) << std::to_string(pair.dateTimePrice.minute) << ":";
+			outStream << std::setw(2) << std::to_string(pair.dateTimePrice.second) << ".";
 			outStream << std::to_string(pair.dateTimePrice.millisec) << ", ";
 			outStream << std::to_string(pair.dateTimePrice.quote) << ", ";
 			outStream << std::to_string(pair.pairQuote) << "\n"; 
