@@ -38,10 +38,59 @@ struct DateTimePrice {
 	// Desc:
 	//----------------------------------------------------------------------------------------------------------------
 	bool operator>(const DateTimePrice& other) {
-		uint64_t a = MsProduct(*this);
-		uint64_t b = MsProduct(other); 
 
-		return (a > b); 
+		if (this->year > other.year) {
+			// regardless of what months/days/etc 'this' is always going to be bigger than 'other'
+			return true;
+		} else if (this->year < other.year) {
+			// 'this' is definiely less than 'other'
+			return false;
+		}
+
+		// years are equal
+		if (this->month > other.month) {
+			return true; 
+		} else if (this->month < other.month) {
+			return false; 
+		}
+
+		// months are equal
+		if (this->day > other.day) {
+			return true;
+		} else if (this->day < other.day) {
+			return false; 
+		}
+
+		// days are equal
+		if (this->hour > other.hour) {
+			return true; 
+		} else if (this->hour < other.hour) {
+			return false; 
+		}
+		
+		// hours are equal
+		if (this->minute > other.minute) {
+			return true; 
+		} else if (this->minute < other.minute) {
+			return false; 
+		}
+
+		// minutes are equal
+		if (this->second > other.second) {
+			return true; 
+		} else if (this->second < other.second) {
+			return false; 
+		}
+
+		// seconds are equal
+		if (this->millisec > other.millisec) {
+			return true; 
+		} else if (this->millisec < other.millisec) {
+			return false;
+		}
+
+		// millisec are equal as well!!
+		return false; 
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -49,10 +98,15 @@ struct DateTimePrice {
 	// Desc:
 	//----------------------------------------------------------------------------------------------------------------
 	bool operator<(const DateTimePrice& other) {
-		uint64_t a = MsProduct(*this);
-		uint64_t b = MsProduct(other); 
 
-		return (a < b); 
+		auto result = this->operator>(other); 
+		
+		if (result) {
+			return false;
+		} 
+		
+		// if NOT greater than and NOT equal then less than
+		return !result && !(*this == other); 
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -62,26 +116,6 @@ struct DateTimePrice {
 	bool operator==(const DateTimePrice& other) {
 		return memcmp(this, &other, sizeof(DateTimePrice)) == 0; 
 	}
-
-private:
-
-	//----------------------------------------------------------------------------------------------------------------
-	// Name: operator>
-	// Desc:
-	//----------------------------------------------------------------------------------------------------------------
-	inline static uint64_t MsProduct(const DateTimePrice& dateTimePrice)
-	{
-		uint64_t a = dateTimePrice.millisec;
-		if (dateTimePrice.second > 0) a *= dateTimePrice.second; 
-		if (dateTimePrice.minute > 0) a *= dateTimePrice.minute; 
-		if (dateTimePrice.hour > 0) a *= dateTimePrice.hour;
-		if (dateTimePrice.day > 0) a *= dateTimePrice.day;
-		if (dateTimePrice.month > 0) a *= dateTimePrice.month; 
-		if (dateTimePrice.year > 0) a *= dateTimePrice.year; 
-
-		return a; 
-	}
-
 };
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -217,7 +251,6 @@ std::vector<DateTimePrice> StreamReadBlock(std::string& filename) {
 					lastCommaIndex = 0; 
 				}
 			}
-
 		}
 	}
 
@@ -226,7 +259,7 @@ std::vector<DateTimePrice> StreamReadBlock(std::string& filename) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-// Name: PricePairs
+// Name: SavePricePairs
 // Desc:
 //---------------------------------------------------------------------------------------------------------------------
 void SavePricePairs(std::string& file1, std::string file2) {
@@ -244,49 +277,74 @@ void SavePricePairs(std::string& file1, std::string file2) {
 
 	std::vector<DateTimePricePair> pairs; 
 
-	if (file1Prices[f1Index] > file2Prices[f2Index]) {
+	if (file1Prices[f1Index] > file2Prices[f2Index + 1]) {
 		
 		// file 1 first datetime occurs after the first datetime of file 2
-		while (file2Prices[f2Index] < file1Prices[f1Index]) {
+		while ( (f2Index + 1) < file2Prices.size() && 
+		(file2Prices[f2Index + 1] < file1Prices[f1Index])) {
 			f2Index++; 
 		}
 
-	} else {
+	} else if (file2Prices[f2Index] > file1Prices[f1Index + 1]) {
 
 		// file 2 first datetime occurs after the first datetime of file 1
-		while (file1Prices[f1Index] < file2Prices[f2Index]) {
+		while ((f1Index + 1) < file1Prices.size() && 
+		(file1Prices[f1Index + 1] < file2Prices[f2Index])) {
 			f1Index++; 
 		}
 	}
-	
-	while(f1Index < (file1Prices.size() - 1) && f2Index < (file2Prices.size() - 1)) {
 
+	 // resample loop
+	while (f1Index < file1Prices.size() && f2Index < file2Prices.size()) {
 		DateTimePricePair pair; 
 
 		// put file1Price[] and file2Price[] into output array
-		if (file1Prices[f1Index] > file2Prices[f2Index]) {
+		if (file1Prices[f1Index] > file2Prices[f2Index]) { // TODO: what if equal??
 
 			pair.dateTimePrice = DateTimePrice(file1Prices[f1Index]); 
 			pair.pairQuote = file2Prices[f2Index].quote;
-		} else {
+
+		} else if (file2Prices[f2Index] > file1Prices[f1Index]) { //file2 current datetime after file1
 
 			pair.dateTimePrice = DateTimePrice(file2Prices[f2Index]); 
 			pair.dateTimePrice.quote = file1Prices[f1Index].quote; 
 			pair.pairQuote = file2Prices[f2Index].quote; 
+
+		} else {
+
+			// TODO: 
 		}
 
 		pairs.push_back(pair);
 
-		if (file1Prices[f1Index + 1] > file2Prices[f2Index + 1]) {
-			f2Index++; 
-		} else {
-			f1Index++; 
+		// if we can possibly increment both indices then
+		if ( (f2Index + 1) < file2Prices.size() && (f1Index + 1) < file1Prices.size()) {
+			if (file2Prices[f2Index + 1] < file1Prices[f1Index + 1]) {
+				f2Index++;
+			} else if (file2Prices[f2Index + 1] > file1Prices[f1Index + 1])  {
+				f1Index++; 
+			}
+
+		} else { // otherwise just keep streaming out prices from whichever file still has data left
+			if (f2Index < file2Prices.size()) {
+				f2Index++; 
+			} 
+			if (f1Index < file2Prices.size()) {
+				f1Index++;
+			}
+		}
+
+		// condition
+		if ((f1Index >= file1Prices.size() && file1Prices.back() > file2Prices[f2Index]) || // f1 index is at the end and f1 last datetime is more recent than f2 current datetime
+			(f2Index >= file2Prices.size() && file2Prices.back() > file1Prices[f2Index]) // f2 index is at/past the end and f2 last datetime is more recent than f1 current datetime
+		) {
+			break; 
 		}
 	}
 
 	// write to file
 	std::ofstream outStream("pairs.csv");
-	outStream << "date_time, quote_1, quote_2\n"; 
+	outStream << "date_time, " << file1 << ", " << file2 << "\n"; 
 
 	if (outStream.is_open()) {
 
