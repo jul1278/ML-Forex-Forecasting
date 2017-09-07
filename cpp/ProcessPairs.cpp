@@ -1,5 +1,4 @@
 // ProcessPairs.cpp
-
 #include <iterator>
 #include <iostream>
 #include <iomanip>
@@ -235,6 +234,11 @@ void SavePricePairs(std::string& file1, std::string file2) {
 	auto file1Prices = StreamReadBlock(file1); 
     auto file2Prices = StreamReadBlock(file2); 
 
+	// check sizes 
+	if (file1Prices.size() == 0 || file2Prices.size() == 0 ) {
+		return; 
+	}
+
 	auto f1Index = 0;
 	auto f2Index = 0; 
 
@@ -254,26 +258,30 @@ void SavePricePairs(std::string& file1, std::string file2) {
 			f1Index++; 
 		}
 	}
-
-	uint32_t quote1Last = 0;
-	uint32_t quote2Last = 0; 
-
-	while(f1Index < file1Prices.size() && f2Index < file2Prices.size()) {
+	
+	while(f1Index < (file1Prices.size() - 1) && f2Index < (file2Prices.size() - 1)) {
 
 		DateTimePricePair pair; 
 
 		// put file1Price[] and file2Price[] into output array
 		if (file1Prices[f1Index] > file2Prices[f2Index]) {
 
-			// update f2 price
-			f2Index++;
+			pair.dateTimePrice = DateTimePrice(file1Prices[f1Index]); 
+			pair.pairQuote = file2Prices[f2Index].quote;
 		} else {
 
-			// update f1 price
+			pair.dateTimePrice = DateTimePrice(file2Prices[f2Index]); 
+			pair.dateTimePrice.quote = file1Prices[f1Index].quote; 
+			pair.pairQuote = file2Prices[f2Index].quote; 
+		}
+
+		pairs.push_back(pair);
+
+		if (file1Prices[f1Index + 1] > file2Prices[f2Index + 1]) {
+			f2Index++; 
+		} else {
 			f1Index++; 
 		}
-		
-		pairs.push_back(pair);
 	}
 
 	// write to file
