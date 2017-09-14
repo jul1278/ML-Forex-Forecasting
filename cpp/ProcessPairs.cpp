@@ -348,6 +348,8 @@ void SavePricePairs(std::string& file1, std::string file2) {
 
 	if (outStream.is_open()) {
 
+		// TODO: optimise loop 
+		// maybe dont use std::string for starters
 		for (auto pair : pairs) {
 
 			outStream << std::setfill('0') << std::setw(4) << std::to_string(pair.dateTimePrice.year) << "-";
